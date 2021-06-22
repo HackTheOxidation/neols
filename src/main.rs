@@ -63,9 +63,9 @@ fn list_long_format(cwd: String) {
                                     print_metadata(metadata);
 
                                     if file_type.is_dir() {
-                                        println!("{}", name.blue());
+                                        println!("{}", name.blue().bold());
                                     } else if file_type.is_symlink() {
-                                        println!("{}", name.magenta());
+                                        println!("{}", name.magenta().bold());
                                     } else {
                                         println!("{}", name);
                                     }
@@ -82,14 +82,20 @@ fn list_long_format(cwd: String) {
 }
 
 fn print_metadata(metadata: fs::Metadata) {
+    let mut formatted: String;
     if metadata.permissions().readonly() {
-        print!("  Yes    ");
+        formatted = format!("{}", "  Yes    ").red().to_string();
     } else {
-        print!("  No     ");
+        formatted = format!("{}", "  No     ").green().to_string();
     }
 
-    print!("{} ", format_bytes(metadata.len()));
+    formatted.push_str(format!("{} ", format_bytes(metadata.len())).yellow().to_string().as_str());
 
+    while formatted.chars().count() < 31 {
+        formatted.push_str(" ");
+    }
+
+    print!("{} ", formatted);
 }
 
 fn format_bytes(bytes: u64) -> String {
@@ -98,20 +104,29 @@ fn format_bytes(bytes: u64) -> String {
 
     if bytes >= 1_000_000_000.0 {
         bytes = bytes / 1_000_000_000.0;
-        bytes.to_string().push_str("G")
+        let mut bytes = bytes.round().to_string();
+        bytes.push_str("G");
+
+        return bytes;
     }
 
     if bytes >= 1_000_000.0 {
         bytes = bytes / 1_000_000.0;
-        bytes.to_string().push_str("M")
+        let mut bytes = bytes.round().to_string();
+        bytes.push_str("M");
+
+        return bytes;
     }
 
     if bytes >= 1_000.0 {
         bytes = bytes / 1_000.0;
-        bytes.to_string().push_str("K")
+        let mut bytes = bytes.round().to_string();
+        bytes.push_str("K");
+
+        return bytes;
     }
 
-    bytes.to_string()
+    bytes.round().to_string()
 }
 
 fn build_options_from_args(args: Vec<String>) -> CliOptions {

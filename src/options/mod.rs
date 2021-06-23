@@ -1,13 +1,11 @@
+#[derive(Copy, Clone)]
 pub struct CliOptions {
     pub all: bool,
     pub long_format: bool,
 }
 
 pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
-    let mut options = CliOptions {
-        all: false,
-        long_format: false,
-    };
+    let mut options = CliOptions::new();
 
     for arg in &args {
         if arg == "-a" {
@@ -22,10 +20,19 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
     options
 }
 
-pub fn validate_options(options: CliOptions) -> CliOptions {
-    if options.long_format && options.all {
-        panic!("neols: Error - Incompatible arguments: -a and -l");
+impl CliOptions {
+    pub fn validate_options(&self) -> self::CliOptions {
+        if self.long_format && self.all {
+            panic!("neols: Error - Incompatible arguments: -a and -l");
+        }
+
+        *self
     }
 
-    options
+    pub fn new() -> CliOptions {
+        CliOptions {
+            all: false,
+            long_format: false,
+        }
+    }
 }

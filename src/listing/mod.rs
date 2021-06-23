@@ -1,7 +1,7 @@
 pub mod formatting;
 
 use crate::listing::formatting::*;
-use crate::options::{validate_options, CliOptions};
+use crate::options::CliOptions;
 use colored::*;
 use std::fs;
 
@@ -35,7 +35,7 @@ fn list_default(cwd: &str, hidden: bool) {
 }
 
 pub fn list_content(cwd: String, options: CliOptions) {
-    let options = validate_options(options);
+    let options = options.validate_options();
 
     if options.all {
         list_default(cwd.as_str(), false);

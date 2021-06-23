@@ -23,7 +23,7 @@ pub fn print_metadata(metadata: fs::Metadata) {
     print!("{} ", formatted);
 }
 
-pub fn format_bytes(bytes: u64) -> String {
+fn format_bytes(bytes: u64) -> String {
     let mut bytes: f64 = bytes as f64;
 
     if bytes >= 1_000_000_000.0 {

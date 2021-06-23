@@ -5,7 +5,7 @@ use crate::options::{validate_options, CliOptions};
 use colored::*;
 use std::fs;
 
-pub fn list_default(cwd: &str, hidden: bool) {
+fn list_default(cwd: &str, hidden: bool) {
     let dirs = fs::read_dir(cwd);
 
     if let Ok(entries) = dirs {
@@ -41,10 +41,12 @@ pub fn list_content(cwd: String, options: CliOptions) {
         list_default(cwd.as_str(), false);
     } else if options.long_format {
         list_long_format(cwd);
+    } else {
+        list_default(cwd.as_str(), true);
     }
 }
 
-pub fn list_long_format(cwd: String) {
+fn list_long_format(cwd: String) {
     let dirs = fs::read_dir(cwd.clone());
 
     match dirs {

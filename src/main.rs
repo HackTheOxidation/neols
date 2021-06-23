@@ -1,7 +1,7 @@
 mod listing;
 mod options;
 
-use crate::listing::*;
+use crate::listing::list_content;
 use crate::options::build_options_from_args;
 use std::env;
 

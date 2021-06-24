@@ -8,8 +8,7 @@ use std::env;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let options =
-        build_options_from_args(args.into_iter().filter(|s| s.starts_with('-')).collect());
+    let options = build_options_from_args(args);
 
-    list_content(String::from("."), options);
+    list_content(options.directory.clone(), options);
 }

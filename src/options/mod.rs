@@ -2,6 +2,7 @@
 pub struct CliOptions {
     pub all: bool,
     pub long_format: bool,
+    pub dirs_only: bool,
 }
 
 pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
@@ -12,6 +13,8 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
             options.all = true;
         } else if arg == "-l" {
             options.long_format = true;
+        } else if arg == "-d" {
+            options.dirs_only = true;
         } else {
             panic!("neols: Error - Unknown argument: {}", arg);
         }
@@ -22,8 +25,8 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
 
 impl CliOptions {
     pub fn validate_options(&self) -> self::CliOptions {
-        if self.long_format && self.all {
-            panic!("neols: Error - Incompatible arguments: -a and -l");
+        if self.long_format && self.all && self.dirs_only {
+            panic!("neols: Error - Incompatible arguments: -a, -d and -l");
         }
 
         *self
@@ -33,6 +36,7 @@ impl CliOptions {
         CliOptions {
             all: false,
             long_format: false,
+            dirs_only: false,
         }
     }
 }

@@ -6,7 +6,7 @@ edition = "2018"
 description = "A remake of `ls` for the 21st century"
 license = "GPL-3.0-or-later"
 readme = "README.md"
-repository = "https://codeberg.org/ShadowSeer/neols"
+repository = "https://codeberg.org/HackTheOxidation/neols"
 categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

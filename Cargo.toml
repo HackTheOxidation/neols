@@ -15,7 +15,6 @@ categories = ["command-line-utilities"]
 name = "neols"
 test = false
 bench = false
-crate-type = ["bin"]
 
 [profile.dev]
 opt-level = 1

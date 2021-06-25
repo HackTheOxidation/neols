@@ -1,6 +1,7 @@
 [package]
 name = "neols"
 version = "0.2.0"
+authors = ["Tomas <tomas.hagenau@protonmail.ch>"]
 edition = "2018"
 description = "A remake of `ls` for the 21st century"
 license = "GPL-3.0-or-newer"

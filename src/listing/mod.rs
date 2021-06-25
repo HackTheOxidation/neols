@@ -37,19 +37,20 @@ fn list_default(cwd: &str, hidden: bool) {
 
 pub fn list_content(cwd: String, options: CliOptions) {
     let options = options.validate_options();
+    let hidden = !options.all;
 
-    if options.all {
-        list_default(cwd.as_str(), false);
-    } else if options.long_format {
-        list_long_format(cwd);
-    } else if options.dirs_only {
+    if options.dirs_only {
         list_dirs_only(cwd);
     } else {
-        list_default(cwd.as_str(), true);
+        if options.long_format {
+            list_long_format(cwd, hidden);
+        } else {
+            list_default(cwd.as_str(), hidden);
+        }
     }
 }
 
-fn list_long_format(cwd: String) {
+fn list_long_format(cwd: String, hidden: bool) {
     let dirs = fs::read_dir(cwd.clone());
 
     match dirs {
@@ -58,6 +59,9 @@ fn list_long_format(cwd: String) {
             for entry in entries.flatten() {
                 if let Ok(name) = entry.file_name().into_string() {
                     if let Ok(metadata) = entry.metadata() {
+                        if name.starts_with('.') && hidden {
+                            continue;
+                        }
                         match entry.file_type() {
                             Ok(file_type) => {
                                 print_metadata(metadata);

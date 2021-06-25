@@ -1,3 +1,4 @@
+/// Struct for holding all commandline arguments and options
 #[derive(Clone)]
 pub struct CliOptions {
     pub all: bool,
@@ -6,6 +7,11 @@ pub struct CliOptions {
     pub directory: String,
 }
 
+/// Constructs a CliOptions struct from a Vec<String> of arguments
+///
+/// # Panics
+///
+/// If a commandline argument is not known. Known options: `-a`, `-d` and `-l`
 pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
     let mut options = CliOptions::new();
 
@@ -29,14 +35,20 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
 }
 
 impl CliOptions {
+    /// Checks if commandline arguments and options are compatible
+    ///
+    /// # Panics
+    ///
+    ///
     pub fn validate_options(&self) -> &self::CliOptions {
-        if self.long_format && self.all && self.dirs_only {
+        if (self.long_format || self.all) && self.dirs_only {
             panic!("neols: Error - Incompatible arguments: -a, -d and -l");
         }
 
         self
     }
 
+    /// Creates a CliOptions struct with default values
     pub fn new() -> CliOptions {
         CliOptions {
             all: false,

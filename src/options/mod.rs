@@ -14,6 +14,7 @@ pub struct CliOptions {
 /// If a commandline argument is not known. Known options: `-a`, `-d` and `-l`
 pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
     let mut options = CliOptions::new();
+    let mut dir_set = false;
 
     for arg in &args {
         if arg.starts_with('-') {
@@ -26,8 +27,13 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
             } else {
                 panic!("neols: Error - Unknown argument: {}", arg);
             }
-        } else if !arg.ends_with("neols") && options.directory == *"." {
-            options.directory = arg.to_string();
+        } else if !arg.ends_with("neols") {
+            if !dir_set {
+                options.directory = arg.to_string();
+                dir_set = true;
+            } else {
+                panic!("neols: Error - Unknown argument: {}", arg);
+            }
         }
     }
 

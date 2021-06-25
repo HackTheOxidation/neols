@@ -7,7 +7,7 @@ use std::fs;
 use std::io;
 
 /// Lists the contents of a directory (`cwd`).
-/// 
+///
 /// `hidden` determines whether hidden content will be shown.
 fn list_default(cwd: &str, hidden: bool) {
     let dirs = fs::read_dir(cwd);
@@ -49,12 +49,10 @@ pub fn list_content(cwd: String, options: CliOptions) {
 
     if options.dirs_only {
         list_dirs_only(cwd);
+    } else if options.long_format {
+        list_long_format(cwd, hidden);
     } else {
-        if options.long_format {
-            list_long_format(cwd, hidden);
-        } else {
-            list_default(cwd.as_str(), hidden);
-        }
+        list_default(cwd.as_str(), hidden);
     }
 }
 

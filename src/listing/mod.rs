@@ -6,6 +6,9 @@ use colored::*;
 use std::fs;
 use std::io;
 
+/// Lists the contents of a directory (`cwd`).
+/// 
+/// `hidden` determines whether hidden content will be shown.
 fn list_default(cwd: &str, hidden: bool) {
     let dirs = fs::read_dir(cwd);
 
@@ -35,6 +38,11 @@ fn list_default(cwd: &str, hidden: bool) {
     println!();
 }
 
+/// Dispatches calls to an other listing function based on commandline options
+///
+/// # Panics
+///
+/// See `validate_options()`
 pub fn list_content(cwd: String, options: CliOptions) {
     let options = options.validate_options();
     let hidden = !options.all;
@@ -50,6 +58,12 @@ pub fn list_content(cwd: String, options: CliOptions) {
     }
 }
 
+/// List the contents of a directory with ReadOnly Size and Name
+///
+/// # Panics
+///
+/// If the supplied directory (`cwd`) does not exist.
+/// Or if the file_type of an entry cannot be retrieved.
 fn list_long_format(cwd: String, hidden: bool) {
     let dirs = fs::read_dir(cwd.clone());
 
@@ -84,6 +98,7 @@ fn list_long_format(cwd: String, hidden: bool) {
     }
 }
 
+/// Lists only the directories in the supplied directory (`cwd`)
 fn list_dirs_only(cwd: String) {
     let dir_closure = |entry: Result<fs::DirEntry, io::Error>| {
         if let Ok(entry) = entry {

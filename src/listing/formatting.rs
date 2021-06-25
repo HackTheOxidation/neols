@@ -1,6 +1,7 @@
 use colored::*;
 use std::fs;
 
+/// Prints the size (in Bytes) of the file and whether it is ReadOnly
 pub fn print_metadata(metadata: fs::Metadata) {
     let mut formatted: String;
     if metadata.permissions().readonly() {
@@ -23,6 +24,7 @@ pub fn print_metadata(metadata: fs::Metadata) {
     print!("{} ", formatted);
 }
 
+/// Converts a number of bytes into a String with appropriate units
 fn format_bytes(bytes: u64) -> String {
     let mut bytes: f64 = bytes as f64;
 

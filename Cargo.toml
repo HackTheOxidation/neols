@@ -5,8 +5,17 @@ authors = ["Tomas <tomas.hagenau@protonmail.ch>"]
 edition = "2018"
 description = "A remake of `ls` for the 21st century"
 license = "GPL-3.0-or-newer"
+readme = "README.md"
+repository = "https://codeberg.org/ShadowSeer/neols"
+license-file = "LICENSE"
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "neols"
+test = false
+bench = false
+crate-type = ["bin"]
 
 [profile.dev]
 opt-level = 1

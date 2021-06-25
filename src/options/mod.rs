@@ -16,7 +16,7 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
     let mut options = CliOptions::new();
     let mut dir_set = false;
 
-    for arg in &args {
+    args.iter().for_each(|arg|
         if arg.starts_with('-') {
             if arg == "-a" {
                 options.all = true;
@@ -35,7 +35,7 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
                 panic!("neols: Error - Unknown argument: {}", arg);
             }
         }
-    }
+    );
 
     options
 }

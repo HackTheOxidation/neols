@@ -11,13 +11,13 @@ pub fn print_metadata(metadata: fs::Metadata) {
     }
 
     formatted.push_str(
-        format!("{} ", format_bytes(metadata.len()))
+        format!("{} ", format_bytes(metadata.len() as f64))
             .yellow()
             .to_string()
             .as_str(),
     );
 
-    while formatted.chars().count() < 31 {
+    while formatted.len() < 31 {
         formatted.push(' ');
     }
 
@@ -25,9 +25,7 @@ pub fn print_metadata(metadata: fs::Metadata) {
 }
 
 /// Converts a number of bytes into a String with appropriate units
-fn format_bytes(bytes: u64) -> String {
-    let mut bytes: f64 = bytes as f64;
-
+fn format_bytes(mut bytes: f64) -> String {
     if bytes >= 1_000_000_000.0 {
         bytes /= 1_000_000_000.0;
         let mut bytes = bytes.round().to_string();

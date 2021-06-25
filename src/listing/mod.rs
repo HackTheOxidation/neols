@@ -4,36 +4,26 @@ use crate::listing::formatting::*;
 use crate::options::CliOptions;
 use colored::*;
 use std::fs;
-use std::io;
 
 /// Lists the contents of a directory (`cwd`).
 ///
 /// `hidden` determines whether hidden content will be shown.
 fn list_default(cwd: &str, hidden: bool) {
-    let dirs = fs::read_dir(cwd);
-
-    if let Ok(entries) = dirs {
-        for entry in entries.flatten() {
-            let name = entry.file_name().into_string();
-            if let Ok(name) = name {
-                if name.starts_with('.') && hidden {
-                    continue;
-                }
-                match entry.file_type() {
-                    Ok(file_type) => {
-                        if file_type.is_dir() {
-                            print!("{}  ", name.blue().bold());
-                        } else if file_type.is_symlink() {
-                            print!("{}  ", name.magenta().bold());
-                        } else {
-                            print!("{}  ", name);
-                        }
-                    }
-                    Err(_) => print!("{}  ", name),
+    fs::read_dir(cwd).into_iter().flatten().for_each(|entry| {
+        if let Ok(entry) = entry {
+            let name = entry.file_name().into_string().unwrap();
+            if !(name.starts_with('.') && hidden) {
+                let file_type = entry.file_type().unwrap();
+                if file_type.is_dir() {
+                    print!("{}  ", name.blue().bold());
+                } else if file_type.is_symlink() {
+                    print!("{}  ", name.magenta().bold());
+                } else {
+                    print!("{}  ", name);
                 }
             }
         }
-    }
+    });
 
     println!();
 }
@@ -57,63 +47,39 @@ pub fn list_content(cwd: String, options: CliOptions) {
 }
 
 /// List the contents of a directory with ReadOnly Size and Name
-///
-/// # Panics
-///
-/// If the supplied directory (`cwd`) does not exist.
-/// Or if the file_type of an entry cannot be retrieved.
 fn list_long_format(cwd: String, hidden: bool) {
-    let dirs = fs::read_dir(cwd.clone());
-
-    match dirs {
-        Ok(entries) => {
-            println!("ReadOnly Size Name");
-            for entry in entries.flatten() {
-                if let Ok(name) = entry.file_name().into_string() {
-                    if let Ok(metadata) = entry.metadata() {
-                        if name.starts_with('.') && hidden {
-                            continue;
-                        }
-                        match entry.file_type() {
-                            Ok(file_type) => {
-                                print_metadata(metadata);
-
-                                if file_type.is_dir() {
-                                    println!("{}", name.blue().bold());
-                                } else if file_type.is_symlink() {
-                                    println!("{}", name.magenta().bold());
-                                } else {
-                                    println!("{}", name);
-                                }
-                            }
-                            Err(e) => panic!("neols: Error - {}", e),
-                        }
-                    }
+    fs::read_dir(cwd).into_iter().flatten().for_each(|entry| {
+        if let Ok(entry) = entry {
+            let name = entry.file_name().into_string().unwrap();
+            let metadata = entry.metadata().unwrap();
+            if !(name.starts_with('.') && hidden) {
+                let file_type = entry.file_type().unwrap();
+                print_metadata(metadata);
+                if file_type.is_dir() {
+                    println!("{}  ", name.blue().bold());
+                } else if file_type.is_symlink() {
+                    println!("{}  ", name.magenta().bold());
+                } else {
+                    println!("{}  ", name);
                 }
             }
         }
-        Err(_) => panic!("neols: Error - Directory does not exist: {}", cwd),
-    }
+    });
 }
 
 /// Lists only the directories in the supplied directory (`cwd`)
 fn list_dirs_only(cwd: String) {
-    let dir_closure = |entry: Result<fs::DirEntry, io::Error>| {
+    fs::read_dir(cwd).into_iter().flatten().for_each(|entry| {
         if let Ok(entry) = entry {
-            if let Ok(file_type) = entry.file_type() {
-                if file_type.is_dir() {
-                    if let Ok(name) = entry.file_name().into_string() {
-                        print!("{}  ", name.blue().bold());
-                    }
-                }
+            let file_type = entry.file_type().unwrap();
+            if file_type.is_dir() {
+                print!(
+                    "{}  ",
+                    entry.file_name().into_string().unwrap().blue().bold()
+                );
             }
         }
-    };
-
-    fs::read_dir(cwd)
-        .into_iter()
-        .flatten()
-        .for_each(dir_closure);
+    });
 
     println!();
 }

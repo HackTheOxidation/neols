@@ -42,6 +42,6 @@ The following table gives an overview and a description of the optional argument
 
 |Name|Argument|Description|
 |---|---|---|
-|All files|`-a`| Lists all files in the directory. This includes hidden files.|
+|All files|`-a`| Lists all files in the directory. This includes hidden files. This option is incompatible with `-d`|
 |Long format|`-l`| Lists all files in the directory with size (in Bytes) and whether the files is ReadOnly (for the user invoking `neols`). This option is incompatible with `-d`|
-|Directories only|`-d`| Lists only files that are also directories. This options is incompatible with `-l`|
+|Directories only|`-d`| Lists only files that are also directories. This options is incompatible with `-a` `-l`|

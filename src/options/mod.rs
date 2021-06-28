@@ -5,6 +5,7 @@ pub struct CliOptions {
     pub long_format: bool,
     pub dirs_only: bool,
     pub directory: String,
+    pub reverse_sorted: bool,
 }
 
 /// Constructs a CliOptions struct from a Vec<String> of arguments
@@ -24,6 +25,8 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
                 options.long_format = true;
             } else if arg == "-d" {
                 options.dirs_only = true;
+            } else if arg == "-r" {
+                options.reverse_sorted = true;
             } else {
                 panic!("neols: Error - Unknown argument: {}", arg);
             }
@@ -61,6 +64,7 @@ impl CliOptions {
             long_format: false,
             dirs_only: false,
             directory: ".".to_string(),
+            reverse_sorted: false,
         }
     }
 }

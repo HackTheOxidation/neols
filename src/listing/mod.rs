@@ -8,8 +8,8 @@ use std::fs;
 /// Lists the contents of a directory (`cwd`).
 ///
 /// `hidden` determines whether hidden content will be shown.
-fn list_default(cwd: String, hidden: bool) {
-    sort_content(get_dirs(cwd, hidden))
+fn list_default(cwd: String, hidden: bool, reverse_sorted: bool) {
+    sort_content(get_dirs(cwd, hidden), reverse_sorted)
         .iter()
         .for_each(|entry| {
             let name = entry.file_name().into_string().unwrap();
@@ -36,11 +36,11 @@ pub fn list_content(cwd: String, options: CliOptions) {
     let hidden = !options.all;
 
     if options.dirs_only {
-        list_dirs_only(cwd);
+        list_dirs_only(cwd, options.reverse_sorted);
     } else if options.long_format {
-        list_long_format(cwd, hidden);
+        list_long_format(cwd, hidden, options.reverse_sorted);
     } else {
-        list_default(cwd, hidden);
+        list_default(cwd, hidden, options.reverse_sorted);
     }
 }
 
@@ -61,19 +61,27 @@ fn get_dirs(cwd: String, hidden: bool) -> Vec<fs::DirEntry> {
 }
 
 /// Sorts contents in a directory lexicographically
-fn sort_content(mut dirs: Vec<fs::DirEntry>) -> Vec<fs::DirEntry> {
-    dirs.sort_by(|a, b| {
+fn sort_content(mut dirs: Vec<fs::DirEntry>, reverse_sorted: bool) -> Vec<fs::DirEntry> {
+    let sorting_closure = |a: &fs::DirEntry, b: &fs::DirEntry| {
         a.file_name()
             .into_string()
             .unwrap()
             .cmp(&b.file_name().into_string().unwrap())
+    };
+
+    dirs.sort_by(|dir1, dir2| {
+        if reverse_sorted {
+            sorting_closure(dir2, dir1)
+        } else {
+            sorting_closure(dir1, dir2)
+        }
     });
     dirs
 }
 
 /// List the contents of a directory with ReadOnly Size and Name
-fn list_long_format(cwd: String, hidden: bool) {
-    let dirs = sort_content(get_dirs(cwd, hidden));
+fn list_long_format(cwd: String, hidden: bool, reverse_sorted: bool) {
+    let dirs = sort_content(get_dirs(cwd, hidden), reverse_sorted);
 
     dirs.iter().for_each(|entry| {
         let name = entry.file_name().into_string().unwrap();
@@ -90,16 +98,18 @@ fn list_long_format(cwd: String, hidden: bool) {
 }
 
 /// Lists only the directories in the supplied directory (`cwd`)
-fn list_dirs_only(cwd: String) {
-    sort_content(get_dirs(cwd, true)).iter().for_each(|entry| {
-        let file_type = entry.file_type().unwrap();
-        if file_type.is_dir() {
-            print!(
-                "{}  ",
-                entry.file_name().into_string().unwrap().blue().bold()
-            );
-        }
-    });
+fn list_dirs_only(cwd: String, reverse_sorted: bool) {
+    sort_content(get_dirs(cwd, true), reverse_sorted)
+        .iter()
+        .for_each(|entry| {
+            let file_type = entry.file_type().unwrap();
+            if file_type.is_dir() {
+                print!(
+                    "{}  ",
+                    entry.file_name().into_string().unwrap().blue().bold()
+                );
+            }
+        });
 
     println!();
 }

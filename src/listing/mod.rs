@@ -8,8 +8,8 @@ use std::fs;
 /// Lists the contents of a directory (`cwd`).
 ///
 /// `hidden` determines whether hidden content will be shown.
-fn list_default(cwd: String, hidden: bool, reverse_sorted: bool) {
-    sort_content(get_dirs(cwd, hidden), reverse_sorted)
+fn list_default(cwd: String, options: &CliOptions) {
+    sort_content(get_dirs(cwd, !options.all), options.reverse_sorted)
         .iter()
         .for_each(|entry| {
             let name = entry.file_name().into_string().unwrap();
@@ -33,14 +33,13 @@ fn list_default(cwd: String, hidden: bool, reverse_sorted: bool) {
 /// See `validate_options()`
 pub fn list_content(cwd: String, options: CliOptions) {
     let options = options.validate_options();
-    let hidden = !options.all;
 
     if options.dirs_only {
-        list_dirs_only(cwd, options.reverse_sorted);
+        list_dirs_only(cwd, options);
     } else if options.long_format {
-        list_long_format(cwd, hidden, options.reverse_sorted);
+        list_long_format(cwd, options);
     } else {
-        list_default(cwd, hidden, options.reverse_sorted);
+        list_default(cwd, options);
     }
 }
 
@@ -80,8 +79,8 @@ fn sort_content(mut dirs: Vec<fs::DirEntry>, reverse_sorted: bool) -> Vec<fs::Di
 }
 
 /// List the contents of a directory with ReadOnly Size and Name
-fn list_long_format(cwd: String, hidden: bool, reverse_sorted: bool) {
-    let dirs = sort_content(get_dirs(cwd, hidden), reverse_sorted);
+fn list_long_format(cwd: String, options: &CliOptions) {
+    let dirs = sort_content(get_dirs(cwd, !options.all), options.reverse_sorted);
 
     dirs.iter().for_each(|entry| {
         let name = entry.file_name().into_string().unwrap();
@@ -98,8 +97,8 @@ fn list_long_format(cwd: String, hidden: bool, reverse_sorted: bool) {
 }
 
 /// Lists only the directories in the supplied directory (`cwd`)
-fn list_dirs_only(cwd: String, reverse_sorted: bool) {
-    sort_content(get_dirs(cwd, true), reverse_sorted)
+fn list_dirs_only(cwd: String, options: &CliOptions) {
+    sort_content(get_dirs(cwd, true), options.reverse_sorted)
         .iter()
         .for_each(|entry| {
             let file_type = entry.file_type().unwrap();

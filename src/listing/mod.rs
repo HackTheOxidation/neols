@@ -4,12 +4,13 @@ use crate::listing::formatting::*;
 use crate::options::CliOptions;
 use colored::*;
 use std::fs;
+use std::rc::Rc;
 
 /// Lists the contents of a directory (`cwd`).
 ///
 /// `hidden` determines whether hidden content will be shown.
 fn list_default(cwd: String, options: &CliOptions) {
-    sort_content(get_dirs(cwd, !options.all), options.reverse_sorted)
+    sort_content(get_dirs(cwd, !options.all), options)
         .iter()
         .for_each(|entry| {
             let name = entry.file_name().into_string().unwrap();
@@ -44,11 +45,11 @@ pub fn list_content(cwd: String, options: CliOptions) {
 }
 
 /// Extracts and filters content in a directory (cwd)
-fn get_dirs(cwd: String, hidden: bool) -> Vec<fs::DirEntry> {
+fn get_dirs(cwd: String, hidden: bool) -> Vec<Rc<fs::DirEntry>> {
     fs::read_dir(cwd)
         .into_iter()
         .flatten()
-        .map(|entry| entry.unwrap())
+        .map(|entry| Rc::new(entry.unwrap()))
         .filter(|entry| {
             if hidden {
                 !(entry.file_name().into_string().unwrap().starts_with('.'))
@@ -56,11 +57,11 @@ fn get_dirs(cwd: String, hidden: bool) -> Vec<fs::DirEntry> {
                 true
             }
         })
-        .collect::<Vec<fs::DirEntry>>()
+        .collect::<Vec<Rc<fs::DirEntry>>>()
 }
 
 /// Sorts contents in a directory lexicographically
-fn sort_content(mut dirs: Vec<fs::DirEntry>, reverse_sorted: bool) -> Vec<fs::DirEntry> {
+fn sort_content(mut dirs: Vec<Rc<fs::DirEntry>>, options: &CliOptions) -> Vec<Rc<fs::DirEntry>> {
     let sorting_closure = |a: &fs::DirEntry, b: &fs::DirEntry| {
         a.file_name()
             .into_string()
@@ -68,19 +69,55 @@ fn sort_content(mut dirs: Vec<fs::DirEntry>, reverse_sorted: bool) -> Vec<fs::Di
             .cmp(&b.file_name().into_string().unwrap())
     };
 
-    dirs.sort_by(|dir1, dir2| {
-        if reverse_sorted {
-            sorting_closure(dir2, dir1)
-        } else {
-            sorting_closure(dir1, dir2)
-        }
-    });
-    dirs
+    if options.group_by {
+        let mut folders: Vec<Rc<fs::DirEntry>> = Vec::new();
+        let mut files: Vec<Rc<fs::DirEntry>> = Vec::new();
+
+        dirs.iter().for_each(|entry| {
+            let file_type = entry.file_type().unwrap();
+            if file_type.is_dir() {
+                folders.push(Rc::clone(entry));
+            } else {
+                files.push(Rc::clone(entry));
+            }
+        });
+
+        folders.sort_by(|dir1, dir2| {
+            if options.reverse_sorted {
+                sorting_closure(dir2, dir1)
+            } else {
+                sorting_closure(dir1, dir2)
+            }
+        });
+
+        files.sort_by(|file1, file2| {
+            if options.reverse_sorted {
+                sorting_closure(file2, file1)
+            } else {
+                sorting_closure(file1, file2)
+            }
+        });
+
+        dirs.clear();
+        folders.iter().for_each(|entry| dirs.push(Rc::clone(entry)));
+        files.iter().for_each(|entry| dirs.push(Rc::clone(entry)));
+
+        dirs
+    } else {
+        dirs.sort_by(|dir1, dir2| {
+            if options.reverse_sorted {
+                sorting_closure(dir2, dir1)
+            } else {
+                sorting_closure(dir1, dir2)
+            }
+        });
+        dirs
+    }
 }
 
 /// List the contents of a directory with ReadOnly Size and Name
 fn list_long_format(cwd: String, options: &CliOptions) {
-    let dirs = sort_content(get_dirs(cwd, !options.all), options.reverse_sorted);
+    let dirs = sort_content(get_dirs(cwd, !options.all), options);
 
     dirs.iter().for_each(|entry| {
         let name = entry.file_name().into_string().unwrap();
@@ -98,7 +135,7 @@ fn list_long_format(cwd: String, options: &CliOptions) {
 
 /// Lists only the directories in the supplied directory (`cwd`)
 fn list_dirs_only(cwd: String, options: &CliOptions) {
-    sort_content(get_dirs(cwd, true), options.reverse_sorted)
+    sort_content(get_dirs(cwd, true), options)
         .iter()
         .for_each(|entry| {
             let file_type = entry.file_type().unwrap();

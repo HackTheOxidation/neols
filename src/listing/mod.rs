@@ -60,8 +60,11 @@ fn get_dirs(cwd: String, hidden: bool) -> Vec<Rc<fs::DirEntry>> {
         .collect::<Vec<Rc<fs::DirEntry>>>()
 }
 
-/// Sorts contents in a directory lexicographically
-fn sort_content(mut dirs: Vec<Rc<fs::DirEntry>>, options: &CliOptions) -> Vec<Rc<fs::DirEntry>> {
+/// Group the entries by file type (directories and non-directories)
+fn group_by(mut dirs: Vec<Rc<fs::DirEntry>>, options: &CliOptions) -> Vec<Rc<fs::DirEntry>> {
+    let mut folders: Vec<Rc<fs::DirEntry>> = Vec::new();
+    let mut files: Vec<Rc<fs::DirEntry>> = Vec::new();
+
     let sorting_closure = |a: &fs::DirEntry, b: &fs::DirEntry| {
         a.file_name()
             .into_string()
@@ -69,41 +72,55 @@ fn sort_content(mut dirs: Vec<Rc<fs::DirEntry>>, options: &CliOptions) -> Vec<Rc
             .cmp(&b.file_name().into_string().unwrap())
     };
 
-    if options.group_by {
-        let mut folders: Vec<Rc<fs::DirEntry>> = Vec::new();
-        let mut files: Vec<Rc<fs::DirEntry>> = Vec::new();
+    dirs.iter().for_each(|entry| {
+        let file_type = entry.file_type().unwrap();
+        if file_type.is_dir() {
+            folders.push(Rc::clone(entry));
+        } else {
+            files.push(Rc::clone(entry));
+        }
+    });
 
-        dirs.iter().for_each(|entry| {
-            let file_type = entry.file_type().unwrap();
-            if file_type.is_dir() {
-                folders.push(Rc::clone(entry));
-            } else {
-                files.push(Rc::clone(entry));
-            }
-        });
+    folders.sort_by(|dir1, dir2| {
+        if options.reverse_sorted {
+            sorting_closure(dir2, dir1)
+        } else {
+            sorting_closure(dir1, dir2)
+        }
+    });
 
-        folders.sort_by(|dir1, dir2| {
-            if options.reverse_sorted {
-                sorting_closure(dir2, dir1)
-            } else {
-                sorting_closure(dir1, dir2)
-            }
-        });
+    files.sort_by(|file1, file2| {
+        if options.reverse_sorted {
+            sorting_closure(file2, file1)
+        } else {
+            sorting_closure(file1, file2)
+        }
+    });
 
-        files.sort_by(|file1, file2| {
-            if options.reverse_sorted {
-                sorting_closure(file2, file1)
-            } else {
-                sorting_closure(file1, file2)
-            }
-        });
-
-        dirs.clear();
+    dirs.clear();
+    if options.reverse_sorted {
+        files.iter().for_each(|entry| dirs.push(Rc::clone(entry)));
+        folders.iter().for_each(|entry| dirs.push(Rc::clone(entry)));
+    } else {
         folders.iter().for_each(|entry| dirs.push(Rc::clone(entry)));
         files.iter().for_each(|entry| dirs.push(Rc::clone(entry)));
+    }
 
-        dirs
+    dirs
+}
+
+/// Sorts contents in a directory lexicographically
+fn sort_content(mut dirs: Vec<Rc<fs::DirEntry>>, options: &CliOptions) -> Vec<Rc<fs::DirEntry>> {
+    if options.group_by {
+        group_by(dirs, options)
     } else {
+        let sorting_closure = |a: &fs::DirEntry, b: &fs::DirEntry| {
+            a.file_name()
+                .into_string()
+                .unwrap()
+                .cmp(&b.file_name().into_string().unwrap())
+        };
+
         dirs.sort_by(|dir1, dir2| {
             if options.reverse_sorted {
                 sorting_closure(dir2, dir1)
@@ -111,6 +128,7 @@ fn sort_content(mut dirs: Vec<Rc<fs::DirEntry>>, options: &CliOptions) -> Vec<Rc
                 sorting_closure(dir1, dir2)
             }
         });
+
         dirs
     }
 }

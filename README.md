@@ -25,7 +25,7 @@ Also, remember to include `~/.cargo/bin` in your `$PATH`.
 
 ### Optional
 
-It is not very convinient to type `neols` all the time,
+It is not very convenient to type `neols` all the time,
 so it is therefore recommended to create an alias in your shell profile
 (`.bashrc`, `.zshrc`, depending on what shell you use).
 
@@ -46,3 +46,4 @@ The following table gives an overview and a description of the optional argument
 |Long format|`-l`| Lists all files in the directory with size (in Bytes) and whether the files is ReadOnly (for the user invoking `neols`). This option is incompatible with `-d`|
 |Directories only|`-d`| Lists only files that are also directories. This options is incompatible with `-a` `-l`|
 |Reverse sort|`-r`| Lists the contents of a directory in reverse lexicographical order.|
+|Group By|`-g`| Groups the contents of a directory by file type (directory and non-directory). By default, directories are printed first followed by everything else.

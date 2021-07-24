@@ -47,3 +47,17 @@ The following table gives an overview and a description of the optional argument
 |Directories only|`-d`| Lists only files that are also directories. This options is incompatible with `-a` `-l`|
 |Reverse sort|`-r`| Lists the contents of a directory in reverse lexicographical order.|
 |Group By|`-g`| Groups the contents of a directory by file type (directory and non-directory). By default, directories are printed first followed by everything else.
+
+As of v0.7.0 you can use composite arguments:
+
+```bash
+neols -alg
+```
+
+The above is the same as:
+
+```bash
+neols -a -l -g
+```
+
+The order of arguments does not matter.

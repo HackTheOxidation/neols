@@ -1,5 +1,5 @@
 /// Struct for holding all commandline arguments and options
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct CliOptions {
     pub all: bool,
     pub long_format: bool,
@@ -20,18 +20,30 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
 
     args.iter().for_each(|arg| {
         if arg.starts_with('-') {
-            if arg == "-a" {
-                options.all = true;
-            } else if arg == "-l" {
-                options.long_format = true;
-            } else if arg == "-d" {
-                options.dirs_only = true;
-            } else if arg == "-r" {
-                options.reverse_sorted = true;
-            } else if arg == "-g" {
-                options.group_by = true;
-            } else {
-                panic!("neols: Error - Unknown argument: {}", arg);
+            let mut arg = arg.clone();
+            while arg.starts_with('-') {
+                arg.remove(0);
+            }
+
+            for ch in arg.chars() {
+                if ch == 'a' {
+                    arg_already_set(options.all, ch);
+                    options.all = true;
+                } else if ch == 'l' {
+                    arg_already_set(options.long_format, ch);
+                    options.long_format = true;
+                } else if ch == 'd' {
+                    arg_already_set(options.dirs_only, ch);
+                    options.dirs_only = true;
+                } else if ch == 'r' {
+                    arg_already_set(options.reverse_sorted, ch);
+                    options.reverse_sorted = true;
+                } else if ch == 'g' {
+                    arg_already_set(options.group_by, ch);
+                    options.group_by = true;
+                } else {
+                    panic!("neols: Error - Unknown argument: {}", ch);
+                }
             }
         } else if !arg.ends_with("neols") {
             if !dir_set {
@@ -44,6 +56,12 @@ pub fn build_options_from_args(args: Vec<String>) -> CliOptions {
     });
 
     options
+}
+
+fn arg_already_set(condition: bool, ch: char) {
+    if condition {
+        panic!("neols: Error - Argument already set: {}", ch);
+    }
 }
 
 impl CliOptions {
